@@ -59,18 +59,18 @@ int main(int argc, char* argv[]) {
       cap >> frame;
 #else
       frame = cv::Mat(1920, 1080, CV_8UC3);
-      randu(frame, cv::Scalar(0, 0, 0), cv::Scalar(255, 255, 255));
+      cv::randu(frame, cv::Scalar(0, 0, 0), cv::Scalar(255, 255, 255));
 #endif
       if (frame.size().width == 0)
         continue;  // simple integrity check; skip erroneous data...
-      resize(frame, send, cv::Size(FRAME_WIDTH, FRAME_HEIGHT), 0, 0,
+      cv::resize(frame, send, cv::Size(FRAME_WIDTH, FRAME_HEIGHT), 0, 0,
              cv::INTER_LINEAR);
       std::vector<int> compression_params;
       compression_params.push_back(cv::IMWRITE_JPEG_QUALITY);
       compression_params.push_back(jpegqual);
 
-      imencode(".jpg", send, encoded, compression_params);
-      imshow("send", send);
+      cv::imencode(".jpg", send, encoded, compression_params);
+      cv::imshow("send", send);
       int total_pack = 1 + (encoded.size() - 1) / PACK_SIZE;
 
       int ibuf[1];

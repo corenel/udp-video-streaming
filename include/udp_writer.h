@@ -1,0 +1,30 @@
+#pragma once
+
+#include <cstdlib>   // For atoi()
+#include <iostream>  // For std::cout and std::cerr
+
+#include "config.h"
+#include "opencv2/opencv.hpp"
+#include "practical_socket.h"  // For UDPSocket and SocketException
+
+class UdpWriter {
+ public:
+  explicit UdpWriter(std::string addr, int port, int packet_size = 4096);
+  ~UdpWriter() = default;
+
+  inline UdpWriter& operator<<(const cv::Mat& frame) {
+    write(frame);
+    return *this;
+  };
+  void write(const cv::Mat& frame);
+
+ private:
+  std::string addr_;
+  int port_;
+  int packet_size_;
+
+  UDPSocket sock_;
+
+  int jpeg_quality_ = ENCODE_QUALITY;  // Compression Parameter
+  std::vector<uchar> buffer_;
+};

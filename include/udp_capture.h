@@ -12,12 +12,12 @@
 
 class UdpCapture {
  public:
-  UdpCapture(int port, int buffer_size = 262144);
+  explicit UdpCapture(int port, int buffer_size = 262144);
   ~UdpCapture();
 
-  cv::Mat getMat();
+  bool read(cv::Mat& frame);
   inline UdpCapture& operator>>(cv::Mat& img) {
-    img = getMat();
+    read(img);
     return *this;
   }
 

@@ -31,7 +31,8 @@ void UdpCapture::openThread() {
       int total_pack = ((int*)buffer_)[0];
 
       // receive packats
-      std::cout << "expecting length of packs:" << total_pack << std::endl;
+      //      std::cout << "expecting length of packs:" << total_pack <<
+      //      std::endl;
       char* longbuf = new char[PACK_SIZE * total_pack];
       for (int i = 0; i < total_pack; i++) {
         recvMsgSize =
@@ -77,10 +78,12 @@ void UdpCapture::openThread() {
   }
 }
 
-cv::Mat UdpCapture::getMat() {
+bool UdpCapture::read(cv::Mat& frame) {
   if (frame_.empty()) {
-    return cv::Mat();
+    frame = cv::Mat();
+    return false;
   }
   std::lock_guard<std::mutex> lock(image_lock_);
-  return frame_;
+  frame = frame_;
+  return true;
 }
