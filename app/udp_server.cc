@@ -75,7 +75,7 @@ int main(int argc, char* argv[]) {
         std::cerr << "decode failure!" << std::endl;
         continue;
       }
-      imshow("recv", frame);
+      cv::imshow("recv", frame);
       free(longbuf);
 
       cv::waitKey(1);
