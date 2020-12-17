@@ -36,15 +36,14 @@ typedef void raw_type;  // Type used for raw data on this platform
 #include <errno.h>  // For errno
 #include <string.h>  // For memset
 
-using namespace std;
-
 #ifdef WIN32
 static bool initialized = false;
 #endif
 
 // SocketException Code
 
-SocketException::SocketException(const string &message, bool inclSysMsg) throw()
+SocketException::SocketException(const std::string &message,
+                                 bool inclSysMsg) throw()
     : userMessage(message) {
   if (inclSysMsg) {
     userMessage.append(": ");
@@ -59,7 +58,7 @@ const char *SocketException::what() const throw() {
 }
 
 // Function to fill in address structure given an address and port
-static void fillAddr(const string &address, unsigned short port,
+static void fillAddr(const std::string &address, unsigned short port,
                      sockaddr_in &addr) {
   memset(&addr, 0, sizeof(addr));  // Zero out address structure
   addr.sin_family = AF_INET;       // Internet address
@@ -108,7 +107,7 @@ Socket::~Socket() {
   sockDesc = -1;
 }
 
-string Socket::getLocalAddress() throw(SocketException) {
+std::string Socket::getLocalAddress() throw(SocketException) {
   sockaddr_in addr;
   unsigned int addr_len = sizeof(addr);
 
@@ -147,7 +146,7 @@ void Socket::setLocalPort(unsigned short localPort) throw(SocketException) {
 }
 
 void Socket::setLocalAddressAndPort(
-    const string &localAddress,
+    const std::string &localAddress,
     unsigned short localPort) throw(SocketException) {
   // Get the address of the requested host
   sockaddr_in localAddr;
@@ -172,8 +171,8 @@ void Socket::cleanUp() throw(SocketException) {
 #endif
 }
 
-unsigned short Socket::resolveService(const string &service,
-                                      const string &protocol) {
+unsigned short Socket::resolveService(const std::string &service,
+                                      const std::string &protocol) {
   struct servent *serv; /* Structure containing service information */
 
   if ((serv = getservbyname(service.c_str(), protocol.c_str())) == NULL)
@@ -191,7 +190,7 @@ CommunicatingSocket::CommunicatingSocket(int type,
 CommunicatingSocket::CommunicatingSocket(int newConnSD) : Socket(newConnSD) {}
 
 void CommunicatingSocket::connect(
-    const string &foreignAddress,
+    const std::string &foreignAddress,
     unsigned short foreignPort) throw(SocketException) {
   // Get the address of the requested host
   sockaddr_in destAddr;
@@ -220,7 +219,7 @@ int CommunicatingSocket::recv(void *buffer,
   return rtn;
 }
 
-string CommunicatingSocket::getForeignAddress() throw(SocketException) {
+std::string CommunicatingSocket::getForeignAddress() throw(SocketException) {
   sockaddr_in addr;
   unsigned int addr_len = sizeof(addr);
 
@@ -246,7 +245,7 @@ unsigned short CommunicatingSocket::getForeignPort() throw(SocketException) {
 TCPSocket::TCPSocket() throw(SocketException)
     : CommunicatingSocket(SOCK_STREAM, IPPROTO_TCP) {}
 
-TCPSocket::TCPSocket(const string &foreignAddress,
+TCPSocket::TCPSocket(const std::string &foreignAddress,
                      unsigned short foreignPort) throw(SocketException)
     : CommunicatingSocket(SOCK_STREAM, IPPROTO_TCP) {
   connect(foreignAddress, foreignPort);
@@ -263,7 +262,7 @@ TCPServerSocket::TCPServerSocket(unsigned short localPort,
   setListen(queueLen);
 }
 
-TCPServerSocket::TCPServerSocket(const string &localAddress,
+TCPServerSocket::TCPServerSocket(const std::string &localAddress,
                                  unsigned short localPort,
                                  int queueLen) throw(SocketException)
     : Socket(SOCK_STREAM, IPPROTO_TCP) {
@@ -299,7 +298,7 @@ UDPSocket::UDPSocket(unsigned short localPort) throw(SocketException)
   setBroadcast();
 }
 
-UDPSocket::UDPSocket(const string &localAddress,
+UDPSocket::UDPSocket(const std::string &localAddress,
                      unsigned short localPort) throw(SocketException)
     : CommunicatingSocket(SOCK_DGRAM, IPPROTO_UDP) {
   setLocalAddressAndPort(localAddress, localPort);
@@ -332,7 +331,7 @@ void UDPSocket::disconnect() throw(SocketException) {
 }
 
 void UDPSocket::sendTo(const void *buffer, int bufferLen,
-                       const string &foreignAddress,
+                       const std::string &foreignAddress,
                        unsigned short foreignPort) throw(SocketException) {
   sockaddr_in destAddr;
   fillAddr(foreignAddress, foreignPort, destAddr);
@@ -344,7 +343,7 @@ void UDPSocket::sendTo(const void *buffer, int bufferLen,
   }
 }
 
-int UDPSocket::recvFrom(void *buffer, int bufferLen, string &sourceAddress,
+int UDPSocket::recvFrom(void *buffer, int bufferLen, std::string &sourceAddress,
                         unsigned short &sourcePort) throw(SocketException) {
   sockaddr_in clntAddr;
   socklen_t addrLen = sizeof(clntAddr);
@@ -367,7 +366,8 @@ void UDPSocket::setMulticastTTL(unsigned char multicastTTL) throw(
   }
 }
 
-void UDPSocket::joinGroup(const string &multicastGroup) throw(SocketException) {
+void UDPSocket::joinGroup(const std::string &multicastGroup) throw(
+    SocketException) {
   struct ip_mreq multicastRequest;
 
   multicastRequest.imr_multiaddr.s_addr = inet_addr(multicastGroup.c_str());
@@ -378,7 +378,7 @@ void UDPSocket::joinGroup(const string &multicastGroup) throw(SocketException) {
   }
 }
 
-void UDPSocket::leaveGroup(const string &multicastGroup) throw(
+void UDPSocket::leaveGroup(const std::string &multicastGroup) throw(
     SocketException) {
   struct ip_mreq multicastRequest;
 

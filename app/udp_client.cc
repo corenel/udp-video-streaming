@@ -20,48 +20,53 @@
  */
 
 #include <cstdlib>   // For atoi()
-#include <iostream>  // For cout and cerr
+#include <iostream>  // For std::cout and std::cerr
 
+#include "config.h"
+#include "opencv2/opencv.hpp"
 #include "practical_socket.h"  // For UDPSocket and SocketException
 
-using namespace std;
-
-#include "opencv2/opencv.hpp"
-using namespace cv;
-#include "config.h"
+#define USE_WEBCAM false
 
 int main(int argc, char* argv[]) {
   if ((argc < 3) || (argc > 3)) {  // Test for correct number of arguments
-    cerr << "Usage: " << argv[0] << " <Server> <Server Port>\n";
+    std::cerr << "Usage: " << argv[0] << " <Server> <Server Port>\n";
     exit(1);
   }
 
-  string servAddress = argv[1];  // First arg: server address
+  std::string servAddress = argv[1];  // First arg: server address
   unsigned short servPort = Socket::resolveService(argv[2], "udp");
 
   try {
     UDPSocket sock;
     int jpegqual = ENCODE_QUALITY;  // Compression Parameter
 
-    Mat frame, send;
-    vector<uchar> encoded;
-    //    VideoCapture cap(0);  // Grab the camera
-    namedWindow("send", WINDOW_AUTOSIZE);
-    //    if (!cap.isOpened()) {
-    //      cerr << "OpenCV Failed to open camera";
-    //      exit(1);
-    //    }
+    cv::Mat frame, send;
+    std::vector<uchar> encoded;
+    cv::namedWindow("send", cv::WINDOW_AUTOSIZE);
+
+#if USE_WEBCAM
+    cv::VideoCapture cap(0);  // Grab the camera
+    if (!cap.isOpened()) {
+      std::cerr << "OpenCV Failed to open camera";
+      exit(1);
+    }
+#endif
 
     clock_t last_cycle = clock();
     while (true) {
-      //      cap >> frame;
-      frame = Mat(1920, 1080, CV_8UC3);
-      randu(frame, Scalar(0, 0, 0), Scalar(255, 255, 255));
+#if USE_WEBCAM
+      cap >> frame;
+#else
+      frame = cv::Mat(1920, 1080, CV_8UC3);
+      randu(frame, cv::Scalar(0, 0, 0), cv::Scalar(255, 255, 255));
+#endif
       if (frame.size().width == 0)
         continue;  // simple integrity check; skip erroneous data...
-      resize(frame, send, Size(FRAME_WIDTH, FRAME_HEIGHT), 0, 0, INTER_LINEAR);
-      vector<int> compression_params;
-      compression_params.push_back(IMWRITE_JPEG_QUALITY);
+      resize(frame, send, cv::Size(FRAME_WIDTH, FRAME_HEIGHT), 0, 0,
+             cv::INTER_LINEAR);
+      std::vector<int> compression_params;
+      compression_params.push_back(cv::IMWRITE_JPEG_QUALITY);
       compression_params.push_back(jpegqual);
 
       imencode(".jpg", send, encoded, compression_params);
@@ -75,21 +80,22 @@ int main(int argc, char* argv[]) {
       for (int i = 0; i < total_pack; i++)
         sock.sendTo(&encoded[i * PACK_SIZE], PACK_SIZE, servAddress, servPort);
 
-      waitKey(FRAME_INTERVAL);
+      cv::waitKey(FRAME_INTERVAL);
 
       clock_t next_cycle = clock();
       double duration = static_cast<double>(next_cycle - last_cycle) /
                         static_cast<double>(CLOCKS_PER_SEC);
-      cout << "\teffective FPS:" << (1 / duration) << " \tMbps:"
-           << (PACK_SIZE * total_pack / duration / 1024 / 1024 * 8) << endl;
+      std::cout << "\teffective FPS:" << (1 / duration) << " \tMbps:"
+                << (PACK_SIZE * total_pack / duration / 1024 / 1024 * 8)
+                << std::endl;
 
-      cout << next_cycle - last_cycle;
+      std::cout << next_cycle - last_cycle;
       last_cycle = next_cycle;
     }
     // Destructor closes the socket
 
   } catch (SocketException& e) {
-    cerr << e.what() << endl;
+    std::cerr << e.what() << std::endl;
     exit(1);
   }
 
