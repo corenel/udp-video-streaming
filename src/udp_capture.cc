@@ -21,7 +21,11 @@ void UdpCapture::openThread() {
     while (true) {
       // recv and decode frame
       cv::Mat frame;
+#if PACKET_SPLIT_METHOD == PACKET_SPLIT_BEGIN_END_FLAG
+      if (!recvPacketsByFlag(frame)) {
+#else
       if (!recvPacketsByTotalNumber(frame)) {
+#endif
         continue;
       }
 
@@ -85,7 +89,56 @@ bool UdpCapture::recvPacketsByTotalNumber(cv::Mat& frame) {
   //      sourcePort
   //                << std::endl;
 
-  cv::Mat rawData = cv::Mat(1, packet_size_ * total_pack, CV_8UC1, longbuf);
+  return decodeImageBuffer(longbuf, packet_size_ * total_pack, frame);
+}
+
+bool UdpCapture::recvPacketsByFlag(cv::Mat& frame) {
+  int recvMsgSize;            // Size of received message
+  std::string sourceAddress;  // Address of datagram source
+  unsigned short sourcePort;  // Port of datagram source
+
+  // block until receive begining message from a client
+  std::string begin_flag(PACKET_SPLIT_BEGIN_FLAG),
+      end_flag(PACKET_SPLIT_END_FLAG);
+  do {
+    recvMsgSize =
+        sock_.recvFrom(buffer_, buffer_size_, sourceAddress, sourcePort);
+    std::string recv_str(buffer_);
+    if (recv_str.rfind(begin_flag, 0) == 0) {
+      //      std::cout << "Received string:" << recv_str << std::endl;
+      break;
+    }
+  } while (static_cast<unsigned>(recvMsgSize) >= begin_flag.length());
+
+  // receive data
+  int total_pack = 1000;
+  char* longbuf = new char[packet_size_ * total_pack];
+  for (int i = 0; i < total_pack; i++) {
+    recvMsgSize =
+        sock_.recvFrom(buffer_, buffer_size_, sourceAddress, sourcePort);
+    if (recvMsgSize != packet_size_) {
+      // stop when receiving end flag
+      if (static_cast<unsigned>(recvMsgSize) >= end_flag.length()) {
+        std::string recv_str(buffer_);
+        if (recv_str.rfind(end_flag, 0) == 0) {
+          //          std::cout << "Received string:" << recv_str << std::endl;
+          break;
+        }
+      } else {
+        std::cerr << "Received unexpected size pack:" << recvMsgSize
+                  << std::endl;
+        continue;
+      }
+    }
+    memcpy(&longbuf[i * packet_size_], buffer_, packet_size_);
+  }
+
+  return decodeImageBuffer(longbuf, packet_size_ * total_pack, frame);
+}
+
+bool UdpCapture::decodeImageBuffer(char* longbuf, int longbuf_size,
+                                   cv::Mat& frame) {
+  cv::Mat rawData = cv::Mat(1, longbuf_size, CV_8UC1, longbuf);
 
   frame = imdecode(rawData, cv::IMREAD_COLOR);
   if (frame.size().width == 0) {
@@ -96,5 +149,3 @@ bool UdpCapture::recvPacketsByTotalNumber(cv::Mat& frame) {
   free(longbuf);
   return true;
 }
-
-bool UdpCapture::recvPacketsByFlag(cv::Mat& frame) { return false; }

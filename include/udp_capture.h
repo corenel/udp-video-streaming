@@ -38,4 +38,5 @@ class UdpCapture {
   void openThread();
   bool recvPacketsByTotalNumber(cv::Mat& frame);
   bool recvPacketsByFlag(cv::Mat& frame);
+  bool decodeImageBuffer(char* buffer, int buffer_size, cv::Mat& frame);
 };

@@ -1,3 +1,5 @@
+#include <chrono>
+
 #include "opencv2/opencv.hpp"
 #include "udp_writer.h"
 
@@ -15,6 +17,12 @@ int main(int argc, char* argv[]) {
     cv::Mat frame = cv::Mat(1920, 1080, CV_8UC3);
     while (true) {
       randu(frame, cv::Scalar(0, 0, 0), cv::Scalar(255, 255, 255));
+      auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+                    std::chrono::system_clock::now().time_since_epoch())
+                    .count();
+      cv::putText(frame, std::to_string(ms),
+                  cv::Point(10, frame.rows / 2),  // top-left position
+                  cv::FONT_HERSHEY_DUPLEX, 2.0, CV_RGB(255, 255, 255), 5);
       cv::imshow("send", frame);
       writer << frame;
       cv::waitKey(FRAME_INTERVAL);

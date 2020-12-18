@@ -25,7 +25,11 @@ void UdpWriter::write(const cv::Mat& frame) {
     imshow("send", send);
 
     // send buffer
+#if PACKET_SPLIT_METHOD == PACKET_SPLIT_BEGIN_END_FLAG
+    sendPacketsByFlag();
+#else
     sendPacketsByTotalNumber();
+#endif
   } catch (SocketException& e) {
     std::cerr << e.what() << std::endl;
     exit(1);
@@ -41,4 +45,12 @@ void UdpWriter::sendPacketsByTotalNumber() {
     sock_.sendTo(&buffer_[i * packet_size_], packet_size_, addr_, port_);
 }
 
-void UdpWriter::sendPacketsByFlag() {}
+void UdpWriter::sendPacketsByFlag() {
+  int total_pack = 1 + (buffer_.size() - 1) / packet_size_;
+  std::string begin_flag(PACKET_SPLIT_BEGIN_FLAG),
+      end_flag(PACKET_SPLIT_END_FLAG);
+  sock_.sendTo(begin_flag.c_str(), begin_flag.length(), addr_, port_);
+  for (int i = 0; i < total_pack; i++)
+    sock_.sendTo(&buffer_[i * packet_size_], packet_size_, addr_, port_);
+  sock_.sendTo(end_flag.c_str(), end_flag.length(), addr_, port_);
+}
