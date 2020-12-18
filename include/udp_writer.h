@@ -22,9 +22,12 @@ class UdpWriter {
   std::string addr_;
   int port_;
   int packet_size_;
+  int jpeg_quality_ = ENCODE_QUALITY;  // Compression Parameter
 
   UDPSocket sock_;
-
-  int jpeg_quality_ = ENCODE_QUALITY;  // Compression Parameter
   std::vector<uchar> buffer_;
+  std::mutex image_lock_;
+
+  void sendPacketsByTotalNumber();
+  void sendPacketsByFlag();
 };

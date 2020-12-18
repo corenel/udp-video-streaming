@@ -8,11 +8,13 @@
 #include <string>
 #include <thread>
 
+#include "config.h"
 #include "practical_socket.h"  // For UDPSocket and SocketException
 
 class UdpCapture {
  public:
-  explicit UdpCapture(int port, int buffer_size = 262144);
+  explicit UdpCapture(int port, int buffer_size = 262144,
+                      int packet_size = PACK_SIZE);
   ~UdpCapture();
 
   bool read(cv::Mat& frame);
@@ -24,6 +26,9 @@ class UdpCapture {
  private:
   int port_;
   int buffer_size_;
+  int packet_size_;
+
+  UDPSocket sock_;
   char* buffer_;
   cv::Mat frame_;
 
@@ -31,4 +36,6 @@ class UdpCapture {
   std::thread* stream_th_;
 
   void openThread();
+  bool recvPacketsByTotalNumber(cv::Mat& frame);
+  bool recvPacketsByFlag(cv::Mat& frame);
 };
