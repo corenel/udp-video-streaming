@@ -71,7 +71,8 @@ bool UdpCapture::recvPacketsByTotalNumber(cv::Mat& frame) {
         sock_.recvFrom(buffer_, buffer_size_, sourceAddress, sourcePort);
     total_pack = atoi(buffer_);
   } while (static_cast<unsigned>(recvMsgSize) > 4 * sizeof(char) ||
-           total_pack < 10 || total_pack > 200);
+           total_pack < 0 ||
+           total_pack > 10);  // FIXME just for resolution 640*320
   //  int total_pack = ((int*)buffer_)[0];
   std::cout << "expecting length of packs:" << total_pack << std::endl;
 
@@ -82,7 +83,8 @@ bool UdpCapture::recvPacketsByTotalNumber(cv::Mat& frame) {
     recvMsgSize =
         sock_.recvFrom(buffer_, buffer_size_, sourceAddress, sourcePort);
     if (recvMsgSize != packet_size_ && i != total_pack - 1) {
-      std::cerr << "Received unexpected size pack:" << recvMsgSize << std::endl;
+      std::cerr << "Received unexpected " << i
+                << "-th size pack:" << recvMsgSize << std::endl;
       continue;
     }
     //    std::cerr << "Received expected size pack:" << recvMsgSize <<
@@ -91,8 +93,9 @@ bool UdpCapture::recvPacketsByTotalNumber(cv::Mat& frame) {
     actual_pack += 1;
   }
 
-  std::cout << "Received " << actual_pack << " packets from " << sourceAddress
-            << ":" << sourcePort << std::endl;
+  //  std::cout << "Received " << actual_pack << " packets from " <<
+  //  sourceAddress
+  //            << ":" << sourcePort << std::endl;
 
   return decodeImageBuffer(longbuf, packet_size_ * total_pack, frame);
 }
