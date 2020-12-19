@@ -38,9 +38,11 @@ void UdpWriter::write(const cv::Mat& frame) {
 
 void UdpWriter::sendPacketsByTotalNumber() {
   int total_pack = 1 + (buffer_.size() - 1) / packet_size_;
-  int ibuf[1];
-  ibuf[0] = total_pack;
-  sock_.sendTo(ibuf, sizeof(int), addr_, port_);
+  //  int ibuf[1];
+  //  ibuf[0] = total_pack;
+  //  sock_.sendTo(ibuf, sizeof(int), addr_, port_);
+  std::string total_pack_str = std::to_string(total_pack);
+  sock_.sendTo(total_pack_str.c_str(), total_pack_str.length(), addr_, port_);
   for (int i = 0; i < total_pack; i++)
     sock_.sendTo(&buffer_[i * packet_size_], packet_size_, addr_, port_);
 }

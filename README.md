@@ -27,5 +27,5 @@ In `include/config.h`:
 1. Send UDP messages: `nc -u <address> <port>` and type text
 2. Listen UDP messages: `nc -l -u -p <port>`
 3. Check UDP port listening
-  - server-side: `sudo netstat -unlp | grep :<port>`
-  - client-side: `nc -vzu <address> <port>`
+   - server-side: `sudo netstat -unlp | grep :<port>`
+   - client-side: `nc -vzu <address> <port>`

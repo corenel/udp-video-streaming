@@ -61,6 +61,7 @@ bool UdpCapture::read(cv::Mat& frame) {
 
 bool UdpCapture::recvPacketsByTotalNumber(cv::Mat& frame) {
   int recvMsgSize;            // Size of received message
+  int total_pack;             // Number of packets to receive
   std::string sourceAddress;  // Address of datagram source
   unsigned short sourcePort;  // Port of datagram source
 
@@ -68,26 +69,30 @@ bool UdpCapture::recvPacketsByTotalNumber(cv::Mat& frame) {
   do {
     recvMsgSize =
         sock_.recvFrom(buffer_, buffer_size_, sourceAddress, sourcePort);
-  } while (static_cast<unsigned>(recvMsgSize) > sizeof(int));
-  int total_pack = ((int*)buffer_)[0];
+    total_pack = atoi(buffer_);
+  } while (static_cast<unsigned>(recvMsgSize) > 4 * sizeof(char) ||
+           total_pack < 10 || total_pack > 200);
+  //  int total_pack = ((int*)buffer_)[0];
+  std::cout << "expecting length of packs:" << total_pack << std::endl;
 
-  // receive packats
-  //      std::cout << "expecting length of packs:" << total_pack <<
-  //      std::endl;
+  // receive packets
   char* longbuf = new char[packet_size_ * total_pack];
+  int actual_pack = 0;
   for (int i = 0; i < total_pack; i++) {
     recvMsgSize =
         sock_.recvFrom(buffer_, buffer_size_, sourceAddress, sourcePort);
-    if (recvMsgSize != packet_size_) {
+    if (recvMsgSize != packet_size_ && i != total_pack - 1) {
       std::cerr << "Received unexpected size pack:" << recvMsgSize << std::endl;
       continue;
     }
+    //    std::cerr << "Received expected size pack:" << recvMsgSize <<
+    //    std::endl;
     memcpy(&longbuf[i * packet_size_], buffer_, packet_size_);
+    actual_pack += 1;
   }
 
-  //      std::cout << "Received packet from " << sourceAddress << ":" <<
-  //      sourcePort
-  //                << std::endl;
+  std::cout << "Received " << actual_pack << " packets from " << sourceAddress
+            << ":" << sourcePort << std::endl;
 
   return decodeImageBuffer(longbuf, packet_size_ * total_pack, frame);
 }

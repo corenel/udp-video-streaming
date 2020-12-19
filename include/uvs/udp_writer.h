@@ -10,7 +10,7 @@
 
 class UdpWriter {
  public:
-  explicit UdpWriter(std::string addr, int port, int packet_size = 4096);
+  explicit UdpWriter(std::string addr, int port, int packet_size = PACK_SIZE);
   ~UdpWriter() = default;
 
   inline UdpWriter& operator<<(const cv::Mat& frame) {
