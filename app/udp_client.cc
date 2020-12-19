@@ -22,9 +22,9 @@
 #include <cstdlib>   // For atoi()
 #include <iostream>  // For std::cout and std::cerr
 
-#include "config.h"
 #include "opencv2/opencv.hpp"
-#include "practical_socket.h"  // For UDPSocket and SocketException
+#include "uvs/config.h"
+#include "uvs/practical_socket.h"  // For UDPSocket and SocketException
 
 #define USE_WEBCAM false
 

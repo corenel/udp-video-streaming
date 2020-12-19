@@ -1,5 +1,5 @@
 #include "opencv2/opencv.hpp"
-#include "udp_capture.h"
+#include "uvs/udp_capture.h"
 
 int main(int argc, char* argv[]) {
   if (argc != 2) {
