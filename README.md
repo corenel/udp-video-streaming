@@ -22,3 +22,8 @@ In `include/config.h`:
 1. Receving Images over UDP: `app/udp_capture_receiver.cpp`
 2. Sending Images over UDP: `app/udp_writer_sender.cpp`
 
+## Tips
+
+1. Send UDP messages: `nc -u <address> <port>` and type text
+2. Listen UDP messages: `nc -l -u -p <port>`
+3. Check UDP port listening: `sudo netstat -unlp | grep :<port>`
