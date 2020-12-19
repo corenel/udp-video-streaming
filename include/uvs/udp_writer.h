@@ -2,6 +2,7 @@
 
 #include <cstdlib>   // For atoi()
 #include <iostream>  // For std::cout and std::cerr
+#include <mutex>
 
 #include "config.h"
 #include "opencv2/opencv.hpp"
