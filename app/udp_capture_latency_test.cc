@@ -16,7 +16,6 @@ int main(int argc, char* argv[]) {
   while (true) {
     cap >> frame;
     if (frame.empty()) {
-      std::cerr << "frame is empty" << std::endl;
       continue;
     }
     // cv::imshow("Camera", frame);
