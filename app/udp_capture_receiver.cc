@@ -1,3 +1,6 @@
+#include <iostream>
+#include <sstream>
+
 #include "opencv2/opencv.hpp"
 #include "uvs/udp_capture.h"
 
@@ -12,11 +15,16 @@ int main(int argc, char* argv[]) {
   try {
     UdpCapture cap(servPort);
     cv::Mat frame;
+    int frame_count = 0;
     while (true) {
       cap >> frame;
       if (!frame.empty()) {
         cv::imshow("recv", frame);
         cv::waitKey(1);
+        //        std::ostringstream filename;
+        //        filename << std::setw(3) << std::setfill('0') << frame_count;
+        //        cv::imwrite(filename.str() + ".png", frame);
+        //        frame_count += 1;
       }
     }
   } catch (SocketException& e) {

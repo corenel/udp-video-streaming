@@ -33,6 +33,7 @@ void UdpCapture::openThread() {
       {
         std::lock_guard<std::mutex> lock(image_lock_);
         frame_ = frame;
+        got_iamge_ = true;
       }
 
       //      clock_t next_cycle = clock();
@@ -50,11 +51,11 @@ void UdpCapture::openThread() {
 }
 
 bool UdpCapture::read(cv::Mat& frame) {
-  if (frame_.empty()) {
+  std::lock_guard<std::mutex> lock(image_lock_);
+  if (frame_.empty() || !got_iamge_) {
     frame = cv::Mat();
     return false;
   }
-  std::lock_guard<std::mutex> lock(image_lock_);
   frame = frame_;
   return true;
 }
@@ -74,7 +75,7 @@ bool UdpCapture::recvPacketsByTotalNumber(cv::Mat& frame) {
            total_pack < 0 ||
            total_pack > 10);  // FIXME just for resolution 640*320
   //  int total_pack = ((int*)buffer_)[0];
-  std::cout << "expecting length of packs:" << total_pack << std::endl;
+  //  std::cout << "expecting length of packs:" << total_pack << std::endl;
 
   // receive packets
   char* longbuf = new char[packet_size_ * total_pack];

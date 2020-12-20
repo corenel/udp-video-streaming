@@ -34,6 +34,7 @@ class UdpCapture {
 
   std::mutex image_lock_;
   std::thread* stream_th_;
+  std::atomic<bool> got_iamge_;
 
   void openThread();
   bool recvPacketsByTotalNumber(cv::Mat& frame);
