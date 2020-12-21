@@ -10,6 +10,8 @@
 
 #include "config.h"
 #include "practical_socket.h"  // For UDPSocket and SocketException
+#include "protocol/image_streaming_data.h"
+#include "protocol/uav_cruising_data.h"
 
 class UdpCapture {
  public:
