@@ -2,7 +2,7 @@
 #include <sstream>
 
 #include "opencv2/opencv.hpp"
-#include "uvs/udp_capture.h"
+#include "uvs/legacy/udp_capture.h"
 
 int main(int argc, char* argv[]) {
   if (argc != 2) {
@@ -15,7 +15,7 @@ int main(int argc, char* argv[]) {
   try {
     UdpCapture cap(servPort);
     cv::Mat frame;
-    int frame_count = 0;
+    //    int frame_count = 0;
     while (true) {
       cap >> frame;
       if (!frame.empty()) {

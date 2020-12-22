@@ -1,6 +1,6 @@
 #include "opencv2/opencv.hpp"
-#include "uvs/latency_tester.h"
-#include "uvs/udp_capture.h"
+#include "uvs/legacy/udp_capture.h"
+#include "uvs/util/latency_tester.h"
 
 int main(int argc, char* argv[]) {
   if (argc != 2) {

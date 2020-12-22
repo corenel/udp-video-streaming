@@ -8,10 +8,10 @@
 #include <string>
 #include <thread>
 
-#include "config.h"
-#include "practical_socket.h"  // For UDPSocket and SocketException
-#include "protocol/image_streaming_data.h"
-#include "protocol/uav_cruising_data.h"
+#include "uvs/protocol/image_streaming_data.h"
+#include "uvs/protocol/uav_cruising_data.h"
+#include "uvs/util/config.h"
+#include "uvs/util/practical_socket.h"  // For UDPSocket and SocketException
 
 class UdpCapture {
  public:

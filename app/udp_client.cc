@@ -23,8 +23,8 @@
 #include <iostream>  // For std::cout and std::cerr
 
 #include "opencv2/opencv.hpp"
-#include "uvs/config.h"
-#include "uvs/practical_socket.h"  // For UDPSocket and SocketException
+#include "uvs/util/config.h"
+#include "uvs/util/practical_socket.h"  // For UDPSocket and SocketException
 
 #define USE_WEBCAM false
 
